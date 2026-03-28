@@ -452,6 +452,8 @@
 //			Treat a command (package main) like a regular package.
 //			Otherwise package main's exported symbols are hidden
 //			when showing the package's top-level documentation.
+//		-ex
+//			Include executable examples.
 //	  	-http
 //			Serve HTML docs over HTTP.
 //		-short
@@ -509,7 +511,8 @@
 // It supports these flags:
 //
 //	  -diff
-//		instead of applying each fix, print the patch as a unified diff
+//		instead of applying each fix, print the patch as a unified diff;
+//		exit with a non-zero status if the diff is not empty
 //
 // The -fixtool=prog flag selects a different analysis tool with
 // alternative or additional fixers; see the documentation for go vet's
@@ -1549,7 +1552,9 @@
 //
 // The use directive specifies a module to be included in the workspace's
 // set of main modules. The argument to the use directive is the directory
-// containing the module's go.mod file.
+// containing the module's go.mod file. The go command does not resolve
+// symbolic links when matching use paths to module directories, so a
+// symlink to a directory is not interchangeable with its target.
 //
 // The go directive specifies the version of Go the file was written at. It
 // is possible there may be future changes in the semantics of workspaces
@@ -1730,7 +1735,12 @@
 //
 // The -r flag searches recursively for modules in the argument
 // directories, and the use command operates as if each of the directories
-// were specified as arguments.
+// were specified as arguments. When -r is used, symlinks to directories
+// within the argument tree are ignored.
+//
+// The go command matches use paths to module directories without resolving
+// symbolic links. A use directive that names a symlink to a directory is
+// not interchangeable with one that names the symlink's target.
 //
 // See the workspaces reference at https://go.dev/ref/mod#workspaces
 // for more information.
@@ -2047,7 +2057,8 @@
 //	  -fix
 //		instead of printing each diagnostic, apply its first fix (if any)
 //	  -diff
-//		instead of applying each fix, print the patch as a unified diff
+//		instead of applying each fix, print the patch as a unified diff;
+//		exit with a non-zero status if the diff is not empty
 //
 // The -vettool=prog flag selects a different analysis tool with
 // alternative or additional checks. For example, the 'shadow' analyzer
@@ -2869,6 +2880,13 @@
 //
 // Code in GOPATH mode vendor directories is not subject to
 // GOPATH mode import path checking (see 'go help importpath').
+//
+// In GOPATH mode, the default GODEBUG values built into a binary
+// will be the same GODEBUG values as when a module specifies
+// "godebug default=go1.20". To use different GODEBUG settings, the
+// GODEBUG environment variable must be set to override those values.
+// This also means that the standard library tests will not run
+// properly with GO111MODULE=off.
 //
 // See https://go.dev/s/go15vendor for details.
 //
