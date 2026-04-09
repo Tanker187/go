@@ -289,7 +289,7 @@ var depsRules = `
 	# hashes
 	io
 	< hash
-	< hash/adler32, hash/crc32, hash/crc64, hash/fnv;
+	< hash/adler32, hash/crc32, hash/crc64, hash/fnv, hash/maphash;
 
 	# math/big
 	FMT, math/rand
@@ -362,9 +362,6 @@ var depsRules = `
 
 	FMT, internal/goexperiment
 	< internal/buildcfg;
-
-	container/heap, go/constant, go/parser, internal/buildcfg, internal/goversion, internal/types/errors
-	< go/types;
 
 	# The vast majority of standard library packages should not be resorting to regexp.
 	# go/types is a good chokepoint. It shouldn't use regexp, nor should anything
@@ -615,6 +612,12 @@ var depsRules = `
 
 	# crypto-aware packages
 
+	FMT, hash/maphash
+	< container/hash;
+
+	hash/maphash, container/heap, go/constant, go/parser, internal/buildcfg, internal/goversion, internal/types/errors
+	< go/types;
+
 	DEBUG, go/build, go/types, text/scanner, crypto/sha256
 	< internal/pkgbits, internal/exportdata
 	< go/internal/gcimporter, go/internal/gccgoimporter, go/internal/srcimporter
@@ -625,9 +628,6 @@ var depsRules = `
 
 	crypto/tls
 	< net/smtp;
-
-	crypto/rand
-	< hash/maphash; # for purego implementation
 
 	# HTTP, King of Dependencies.
 
